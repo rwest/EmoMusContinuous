@@ -40,20 +40,36 @@ for filename in filenames:
     data[filename] = this_file_data
 
 # do some plots
+
+pylab.figure(2)
+pylab.clf()
+    
 for filename in filenames:
     t = data[filename]['t']
     DotX = data[filename]['DotX']
     DotY = data[filename]['DotY']    
-    
-    pylab.figure(1)
-    pylab.title('Y vs X')
-    pylab.plot(DotX,DotY, label=filename)
-    pylab.legend()
-    pylab.show()
-    
-    pylab.figure(2)
     pylab.title('Y vs t')
     pylab.plot(t,DotY, label=filename)
     pylab.legend()
     pylab.show()
-        
+
+
+pylab.figure(1)
+pylab.clf()
+pylab.title('Y vs X')
+lines=dict()
+for filename in filenames:
+    t = data[filename]['t']
+    DotX = data[filename]['DotX']
+    DotY = data[filename]['DotY']
+    lines[filename], = pylab.plot(DotX,DotY, label=filename)
+#pylab.legend()
+pylab.show()
+pylab.ion() # turn interactive mode on
+for i in range(2,len(data[filename]['DotX'])):
+    for filename in filenames:
+        DotX = data[filename]['DotX'][0:i]
+        DotY = data[filename]['DotY'][0:i]
+        lines[filename].set_data(DotX, DotY)
+    pylab.draw()
+pylab.ioff() # turn interactive mode off
