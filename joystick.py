@@ -24,11 +24,24 @@ class FileNameError(ValueError):
     pass
     
 class Dataset:
+    """A set of data"""
     def __init__(self, folderpath=None):
         pass
         self.data=list()
         if folderpath:
             self.load(folderpath)
+            
+    def filter(self,**kwargs):
+        """Filters the dataset based on keyword arguments
+        (which are converted to strings before comparison)
+        
+        Is an iterator (i.e. do "for d in dataset.filter(songno=105):" )"""
+        for datafile in self.data:
+            for key in kwargs:
+                if datafile.metadata[key] != str(kwargs[key]):
+                    break
+            else: # got to end of kwargs without breaking, so include the file
+                yield datafile
         
     def load(self,folderpath='data'):
         print "Loading from",folderpath
@@ -111,6 +124,9 @@ class untitledTests(unittest.TestCase):
     def testLoadDataset(self):
         dataset = Dataset()
         dataset.load('data')
+        for datafile in dataset.filter(songno=105, condition='i'):
+            datafile.data['DotX'].shape
+    
 
 if __name__ == '__main__':
     unittest.main()
