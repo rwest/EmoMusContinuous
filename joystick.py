@@ -45,6 +45,7 @@ class Dataset:
         
     def load(self,folderpath='data'):
         print "Loading from",folderpath
+        self.folderpath = folderpath
         for subfolder in os.listdir(folderpath):
             subfolderpath = os.path.join(folderpath, subfolder)
             if not os.path.isdir(subfolderpath):
@@ -73,6 +74,15 @@ class Datafile:
         self.metadata=dict()
         if filepath:
             self.load(filepath)
+    
+    def __repr__(self):
+        subject = self.metadata['subject']
+        songno = self.metadata['songno']
+        condition = self.metadata['condition']
+        length = len(self.data['t'])
+        time = self.get_last_time()
+        return "<Datafile song:%s condition:%s subject:%s time:%ss>"%(
+                 songno, condition, subject, time )
         
     def parse_filename(self):
         #sm10_ts_subjectcodes1_01-00-songnumber-condition-artist-songtitle.txt
@@ -82,12 +92,16 @@ class Datafile:
             raise FileNameError('Filename %s is not of the expected format'%self.filename)
         for key in ['subject', 'songno', 'condition', 'artist', 'songname']:
             self.metadata[key] = match.group(key)
+
+    def get_last_time(self):
+        """Get the time of the last datapoint"""
+        return self.data['t'][-1]
         
     def load(self, filepath):
         # create new dictionary for data
         this_file_data = dict()
         # read data file
-        print "Reading ",filepath
+        #print "Reading ",filepath
 
         (path,filename) = os.path.split(filepath)
         self.filename = filename
@@ -98,7 +112,6 @@ class Datafile:
             # if you don't care that you can't parse the filename, don't raise
             raise
             
-        
         csvfile = file(filepath)
         reader = csv.DictReader(csvfile)
         # initialise empty lists
@@ -118,15 +131,40 @@ class Datafile:
         self.data = this_file_data
 
 
-class untitledTests(unittest.TestCase):
+class loadingTests(unittest.TestCase):
     def setUp(self):
         pass
+    def testLoadDatafile(self):
+        filepath='data/Barbara Streisand/sm10_ts_vbla1048s2_01-00-069-l-barbrastreisand-thewaywewere.txt'
+        assert os.path.isfile(filepath)
+        datafile = Datafile()
+        datafile.load(filepath)
     def testLoadDataset(self):
         dataset = Dataset()
         dataset.load('data')
-        for datafile in dataset.filter(songno=105, condition='i'):
-            datafile.data['DotX'].shape
-    
 
+class manipulationTests(unittest.TestCase):
+    def setUp(self):
+        self.dataset = Dataset('data')
+    def testFilter(self):
+        dataset=self.dataset
+        for datafile in dataset.filter(songno=105, condition='i'):
+            print datafile.data['DotX'].shape,
+            
 if __name__ == '__main__':
-    unittest.main()
+    # to run unit tests, use the following line
+    # unittest.main()
+    import pylab
+    ds = Dataset('data')
+    pylab.figure(1)
+    for df in ds.filter(songno=105, condition='i'):
+        print df
+        t = df.data['t']
+        DotX = df.data['DotX']
+        DotY = df.data['DotY']    
+        pylab.title('Y vs t')
+        pylab.plot(t,DotY, label=df.metadata['subject'])
+    pylab.legend()
+    pylab.show()
+    
+        
