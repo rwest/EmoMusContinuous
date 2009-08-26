@@ -96,6 +96,9 @@ class Datafile:
     def get_last_time(self):
         """Get the time of the last datapoint"""
         return self.data['t'][-1]
+    def get_frame_count(self):
+        """Get the number of datapoints"""
+        return len(self.data['t'])
         
     def load(self, filepath):
         # create new dictionary for data
