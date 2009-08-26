@@ -35,7 +35,7 @@ class Dataset:
         """Filters the dataset based on keyword arguments
         (which are converted to strings before comparison)
         
-        Is an iterator (i.e. do "for d in dataset.filter(songno=105):" )"""
+        It is an iterator (i.e. usage "for df in dataset.filter(songno=105):" )"""
         for datafile in self.data:
             for key in kwargs:
                 if datafile.metadata[key] != str(kwargs[key]):
@@ -124,9 +124,9 @@ class Datafile:
             DotX.append(row['DotX'])
             DotY.append(row['DotY'])
         #turn lists into arrays and store in dictionary
-        this_file_data['t'] = numpy.array(t)
-        this_file_data['DotX'] = numpy.array(DotX)
-        this_file_data['DotY'] = numpy.array(DotY)
+        this_file_data['t'] = numpy.array(t,dtype=float)
+        this_file_data['DotX'] = numpy.array(DotX,dtype=float)
+        this_file_data['DotY'] = numpy.array(DotY,dtype=float)
         
         self.data = this_file_data
 
@@ -153,18 +153,7 @@ class manipulationTests(unittest.TestCase):
             
 if __name__ == '__main__':
     # to run unit tests, use the following line
-    # unittest.main()
-    import pylab
-    ds = Dataset('data')
-    pylab.figure(1)
-    for df in ds.filter(songno=105, condition='i'):
-        print df
-        t = df.data['t']
-        DotX = df.data['DotX']
-        DotY = df.data['DotY']    
-        pylab.title('Y vs t')
-        pylab.plot(t,DotY, label=df.metadata['subject'])
-    pylab.legend()
-    pylab.show()
+    unittest.main()
+
     
         
