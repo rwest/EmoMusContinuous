@@ -54,6 +54,7 @@ for df in ds.filter(songno=105):
 axes.axis([-400,400,-400,400])
 pylab.show()
 pylab.ion() # turn interactive mode on
+pylab.draw()
 for i in range(2,len(df.data['DotX'])):
     for df in ds.filter(songno=105):
         DotX = df.data['DotX'][i-1:i]
@@ -69,14 +70,21 @@ pylab.ioff() # turn interactive mode off
 # I can't get histograms to work with my version of matplotlib
 # so no idea if this code works:
 pylab.figure(3)
+pylab.clf()
 #for i in range(2,len(df.data['DotX'])):
-for i in [200]:
-    y_list=list()
-    for df in ds.filter(songno=105,condition='l'):
-        t = df.data['t'][i]
-        DotY = df.data['DotY'][i]
-        y_list.append(DotY)
-    y_array = numpy.array(y_list,dtype=float)
-    pylab.hist(y_array)
-    
+for i in range(0,len(df.data['DotX']) ):
+    pylab.clf()
+    for condition in ['i','l']:
+        y_list=list()
+        for df in ds.filter(songno=105,condition=condition):
+            t = df.data['t'][i]
+            DotY = df.data['DotY'][i]
+            y_list.append(DotY)
+        y_array = numpy.array(y_list,dtype=float)
+        pylab.hist(y_array, range=[-400,400], color=colours[condition], alpha=0.5)
+    pylab.draw()
+    pylab.show()
+    # save the figure as a png to make a move
+    pylab.savefig('histogram%04d.png'%i)
+        
         
