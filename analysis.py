@@ -1,59 +1,90 @@
 # this program should do some analysis of some csv data files
 
-# this version is written as a script.
-# It does not use a 'pythonic' object oriented approach
+# this file is written as a script. 
+# Suggested use: load ipython with ipython -pylab
+# then run this with 
+# %run analysis.py
+# all the data will then be in memory for you to play with
 
 import csv
 import os
-import numpy
-import pylab
 
-data=dict() # create empty dictionary for all data (key = filename)
+import pylab
+import numpy
+
 data_folder = "data"
 
+import joystick
+from joystick import Dataset, Datafile
 
-filenames = os.listdir(data_folder)
-for filename in filenames:
-    # create new dictionary for data
-    this_file_data = dict()
-    
-    # read data file
-    print "Reading ",filename
-    filepath = os.path.join(data_folder, filename)
-    csvfile = file(filepath)
-    reader = csv.DictReader(csvfile)
-    # initialise empty lists
-    t=list()
-    DotX=list()
-    DotY=list()
-    # read in all rows
-    for row in reader:
-        t.append(row['t'])
-        DotX.append(row['DotX'])
-        DotY.append(row['DotY'])
-    #turn lists into arrays and store in dictionary
-    this_file_data['t'] = numpy.array(t)
-    this_file_data['DotX'] = numpy.array(DotX)
-    this_file_data['DotY'] = numpy.array(DotY)
-    
-    #store in the master dictionary
-    data[filename] = this_file_data
 
-# do some plots
-for filename in filenames:
-    t = data[filename]['t']
-    DotX = data[filename]['DotX']
-    DotY = data[filename]['DotY']    
-    
-    pylab.figure(1)
-    pylab.title('Y vs X')
-    pylab.plot(DotX,DotY, label=filename)
-    pylab.legend()
-    pylab.show()
-    
-    pylab.figure(2)
+ds = Dataset('data')
+
+colours={'i': 'r', 'l': 'b'} # instrumental = red, lyrics = blue
+
+# do a Y verses time plot
+pylab.figure(1)
+for df in ds.filter(songno=105):
+    t = df.data['t']
+    DotX = df.data['DotX']
+    DotY = df.data['DotY']    
+    col = colours[df.metadata['condition']]
     pylab.title('Y vs t')
-    pylab.plot(t,DotY, label=filename)
-    pylab.legend()
+    pylab.plot(t,DotY, col+'-', label=df.metadata['subject'])
+#pylab.legend()
+pylab.show()
+
+
+
+# do an animated plot
+# as described at http://www.scipy.org/Cookbook/Matplotlib/Animations
+pylab.figure(2)
+pylab.clf()
+axes=pylab.subplot(111)
+pylab.ion()
+lines=dict()
+for df in ds.filter(songno=105):
+    t = df.data['t']
+    DotX = df.data['DotX'][0:1]
+    DotY = df.data['DotY'][0:1]  
+    col = colours[df.metadata['condition']]
+    pylab.title('X vs Y')
+    lines[df.filename], = pylab.plot(DotX,DotY,col+'.-', label=df.metadata['subject'], animated=True)
+    #pylab.legend()
+axes.axis([-400,400,-400,400])
+pylab.show()
+pylab.ion() # turn interactive mode on
+pylab.draw()
+for i in range(2,len(df.data['DotX'])):
+    for df in ds.filter(songno=105):
+        DotX = df.data['DotX'][i-1:i]
+        DotY = df.data['DotY'][i-1:i]
+        line = lines[df.filename]
+        line.set_data(DotX, DotY)
+        axes.draw_artist(line)
+    axes.figure.canvas.blit(axes.bbox) # just redraw the axes rectangle
+pylab.ioff() # turn interactive mode off
+
+
+# try a histogram
+# I can't get histograms to work with my version of matplotlib
+# so no idea if this code works:
+pylab.figure(3)
+pylab.clf()
+#for i in range(2,len(df.data['DotX'])):
+for i in range(0,len(df.data['DotX']) ):
+    pylab.clf()
+    for condition in ['i','l']:
+        y_list=list()
+        for df in ds.filter(songno=105,condition=condition):
+            t = df.data['t'][i]
+            DotY = df.data['DotY'][i]
+            y_list.append(DotY)
+        y_array = numpy.array(y_list,dtype=float)
+        pylab.hist(y_array, range=[-400,400], color=colours[condition], alpha=0.5)
+    pylab.draw()
     pylab.show()
+    # save the figure as a png to make a move
+    pylab.savefig('histogram%04d.png'%i)
+        
         
