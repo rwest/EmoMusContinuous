@@ -20,7 +20,7 @@ songno = 105 # Alanis Morrisette
 
 colours={'i': 'b', 
 		 'l': 'r'} # instrumental = blue, lyrics = red
-print "Reminder: Lyrics = Red, Instrumental = Blue "
+print "Reminder: Lyrics = Red, Instrumental = Blue"
 
 sample_file = ds.filter(songno=songno).next()
 
@@ -116,12 +116,12 @@ pylab.title("%s - %s"%(df.metadata['artist'], df.metadata['songname']))
 pylab.xlabel('Time (s)')
 pylab.ylabel('P value')
 
-pylab.semilogy(t,pval_array, 'b')
+pylab.semilogy(t,pval_array, colours['l'])
 
-# put red dots on the points for which instRumental was more arousing
+# put coloured dots on the points for which instrumental was more arousing
 for i,diff in enumerate( mean_diff_array ):
 	if diff<0:
-		 pylab.semilogy(t[i],pval_array[i], 'r.')
+		 pylab.semilogy(t[i],pval_array[i], colours['i']+'.')
 
 # draw the horizontal line of p=0.05
 pylab.axhline(y=0.05, linestyle=':', color='k')
