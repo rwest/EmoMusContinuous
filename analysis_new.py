@@ -123,11 +123,9 @@ for i,diff in enumerate( mean_diff_array ):
 	if diff<0:
 		 pylab.semilogy(t[i],pval_array[i], 'r.')
 
-
-
 # draw the horizontal line of p=0.05
-pylab.axhline(y=0.05, linestyle=':')
-pylab.text(max(t)/2, 0.05, "p=0.05", color='b')
+pylab.axhline(y=0.05, linestyle=':', color='k')
+pylab.text(max(t)/2, 0.05, "p=0.05", color='k')
 
 #pylab.legend()
 pylab.show()
