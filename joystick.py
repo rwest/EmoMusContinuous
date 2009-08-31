@@ -26,10 +26,11 @@ class FileNameError(ValueError):
 class Dataset:
 	"""A set of data"""
 	def __init__(self, folderpath=None):
-		pass
-		self.data=list()
+		self.metadata = dict()
+		self.data = list()
 		if folderpath:
 			self.load(folderpath)
+		
 			
 	def filter(self,**kwargs):
 		"""Filters the dataset based on keyword arguments
@@ -64,6 +65,14 @@ class Dataset:
 					
 				#store in the master list
 				self.data.append(this_file)
+				
+				for key,value in this_file.metadata.iteritems():
+					try:
+						self.metadata[key].add(value)
+					except KeyError: # metadata[key] not defined yet
+						self.metadata[key] = set([value])
+				
+				
 				
 
 	
@@ -157,6 +166,6 @@ class manipulationTests(unittest.TestCase):
 if __name__ == '__main__':
 	# to run unit tests, use the following line
 	unittest.main()
-
+	
 	
 		
