@@ -16,18 +16,21 @@ from joystick import Dataset, Datafile
 
 data_folder = "data"
 
+
 ds = Dataset(data_folder)
 
 colours={'i': 'b', 
 		 'l': 'r'} # instrumental = blue, lyrics = red
 print "Reminder: Lyrics = Red, Instrumental = Blue"
 
+pylab.figure()
+pylab.show()
+
 for figureno,songno in enumerate(ds.metadata['songno']):
 	# figureno will increment from 0
 	# songno will go through all the available songno's in the Dataset ds
-	
-	pylab.figure(figureno)
-	
+	#pylab.figure(figureno)
+		
 	sample_file = ds.filter(songno=songno).next()
 	
 	pval_list = list() # list of P values (one for each time step)
@@ -89,10 +92,10 @@ for figureno,songno in enumerate(ds.metadata['songno']):
 		pval_list.append(pval)
 		mean_diff_list.append(mean_diff)
 		
-		print "At time = %.1fs lyric mean is %f more arousing than instrumental mean"%(
-				t, lyric.mean()-instrumental.mean() )
-		print "  T statistic = %f which corresponds to p = %.3f"%(tstat, pval)
-		
+# 		print "At time = %.1fs lyric mean is %f more arousing than instrumental mean"%(
+# 				t, lyric.mean()-instrumental.mean() )
+# 		print "  T statistic = %f which corresponds to p = %.3f"%(tstat, pval)
+ 		
 		row_data = {  't': t,
 				'imy': instrumental.mean(), 
 				'ivy': numpy.var(instrumental), 
@@ -103,35 +106,41 @@ for figureno,songno in enumerate(ds.metadata['songno']):
 				'tstat': tstat,
 				'pval': pval }
 		csv_out.writerow(row_data)
-		
+
 	csv_file.close()
-	
+	#sample_file.metadata['artist']+['.csv'], (0,1,4))
+
 	#convert to arrays
 	pval_array = numpy.array(pval_list)
 	mean_diff_array = numpy.array(mean_diff_list)
 	
 	# do a pval versus time plot
-	pylab.clf()
+	# pylab.clf()
 	t = df.data['t']
 	
+	#pylab.plot(t,mean_diff_array, colours['l'])
+	
+	pylab.subplot(4,4,figureno)
+	pylab.plot(t,mean_diff_array, colours['l'])
 	pylab.title("%s - %s"%(df.metadata['artist'], df.metadata['songname']))
 	pylab.xlabel('Time (s)')
-	pylab.ylabel('P value')
-	
-	pylab.semilogy(t,pval_array, colours['l'])
-	
-	# put coloured dots on the points for which instrumental was more arousing
-	for i,diff in enumerate( mean_diff_array ):
+	pylab.ylabel('Diff value')	
+		# put coloured dots on the points for which instrumental was more arousing
+	for i,diff in enumerate(mean_diff_array):
 		if diff<0:
-			 pylab.semilogy(t[i],pval_array[i], colours['i']+'.')
+			 pylab.plot(t[i],mean_diff_array[i], colours['i']+'.')
 	
-	# draw the horizontal line of p=0.05
-	pylab.axhline(y=0.05, linestyle=':', color='k')
-	pylab.text(max(t)/2, 0.05, "p=0.05", color='k')
+	# put coloured dashes on the points for which p < 0.005		 
+	for i,diff in enumerate(pval_array):
+		if pval<0.005:
+			pylab.plot(t[i],mean_diff_array[i], linestyle='-', color='g')
+	# draw the horizontal line of p=0.005
+	#pylab.axhline(y=0.005, linestyle=':', color='k')
+	#pylab.text(max(t)/2, 0.005, "p=0.005", color='k')
 	
 	#pylab.legend()
 	pylab.show()
-	
+
 #p = plt.axhspan(0.25, 0.75, facecolor='0.5', alpha=0.5)
 
 
