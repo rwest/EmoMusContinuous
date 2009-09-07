@@ -132,6 +132,7 @@ class Datafile:
 		DotY=list()
 		# read in all rows
 		for row in reader:
+			if float(row['t'])>60: break # stop reading at 60 seconds
 			t.append(row['t'])
 			DotX.append(row['DotX'])
 			DotY.append(row['DotY'])
