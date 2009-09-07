@@ -22,8 +22,9 @@ ds = Dataset('data')
 songno = 105 # Alanis Morrisette 
 
 
-colours={'i': 'r', 'l': 'b'} # instrumental = red, lyrics = blue
-print "Reminder: instRumental = Red, Lyrics = bLue "
+colours={'i': 'b', 
+		 'l': 'r'} # instrumental = blue, lyrics = red
+print "Reminder: Lyrics = Red, Instrumental = Blue"
 
 #do 4 in one animated plot
 
@@ -152,8 +153,6 @@ pylab.ioff() # turn interactive mode off
 
 
 # try a histogram
-# I can't get histograms to work with my version of matplotlib
-# so no idea if this code works:
 pylab.figure(3)
 pylab.clf()
 #for i in range(2,len(df.data['DotX'])):
