@@ -51,6 +51,9 @@ for figureno,songno in enumerate(ds.metadata['songno']):
 				'pval': 'P value' }
 	csv_out.writerow(labels)
 	
+	lyrics_lower_during = [] # a list of lists of times during which the lyrics are below the instrumental
+	lyrics_lower = False
+	
 	# loop over timesteps
 	for i in range(0, sample_file.get_frame_count(), 1 ): 
 	
@@ -92,6 +95,19 @@ for figureno,songno in enumerate(ds.metadata['songno']):
 		pval_list.append(pval)
 		mean_diff_list.append(mean_diff)
 		
+		if mean_diff>0: #lyrics are higher
+			lyrics_lower = False
+		else : # lyrics are lower
+			if lyrics_lower:
+				# lyrics were lower in previous timestep too
+				# append this timestep to the last list of lyrics_lower_during timesteps
+				lyrics_lower_during[-1].append(i)
+			else: 
+				# lyrics were not lower in previous timestep
+				# create a new list of of lyrics_lower_during timesteps, initially containing just this step
+				lyrics_lower_during.append([i]) 
+			lyrics_lower = True
+		
 # 		print "At time = %.1fs lyric mean is %f more arousing than instrumental mean"%(
 # 				t, lyric.mean()-instrumental.mean() )
 # 		print "  T statistic = %f which corresponds to p = %.3f"%(tstat, pval)
@@ -114,32 +130,50 @@ for figureno,songno in enumerate(ds.metadata['songno']):
 	pval_array = numpy.array(pval_list)
 	mean_diff_array = numpy.array(mean_diff_list)
 	
-	# do a pval versus time plot
-	# pylab.clf()
+	
 	t = df.data['t']
 	
 	#pylab.plot(t,mean_diff_array, colours['l'])
 	print "figure",figureno
-	pylab.subplot(4,4,figureno+1)
+	ax = pylab.subplot(4,4,figureno+1)
 	pylab.plot(t,mean_diff_array, colours['l'])
-	pylab.title("%s"%(df.metadata['artist']), fontsize=10)
+	
+	thistitle=pylab.title("%s"%(df.metadata['artist']), fontsize=10)
+	
 	#pylab.xlabel('Time (s)')
 	#pylab.ylabel('Diff value')	
-		# put coloured dots on the points for which instrumental was more arousing
-	for i,diff in enumerate(mean_diff_array):
-		if diff<0:
-			 pylab.plot(t[i],mean_diff_array[i], colours['i']+'.')
 	
-	# put coloured dashes on the points for which p < 0.005		 
+	# draw a horizontal line at y=0
+	pylab.axhline(y=0.0, linestyle='-', color='k')
+
+	# draw a blue line over sections for which instrumental was more arousing
+	for timesteps in lyrics_lower_during: # timesteps is a list of consecutive timesteps during which lyrics were lower
+		pylab.plot(t[timesteps],mean_diff_array[timesteps], colours['i'])
+	
+	# put big coloured dots on the points for which p < 0.005		 
 	for i,pval in enumerate(pval_array):
 		if pval<0.005:
-			pylab.plot(t[i],mean_diff_array[i], 'g.')
+			if mean_diff_array[i]<0:
+				color = colours['i']
+			else:
+				color = colours['l']
+			pylab.plot(t[i],mean_diff_array[i], color+'.')
 	# draw the horizontal line of p=0.005
 	#pylab.axhline(y=0.005, linestyle=':', color='k')
 	#pylab.text(max(t)/2, 0.005, "p=0.005", color='k')
 	
-	#pylab.legend()
+	
+	for label in ax.xaxis.get_ticklabels():
+	# label is a Text instance
+	#	label.set_color('red')
+	#	label.set_rotation(45)
+		label.set_fontsize(10)
+	for label in ax.yaxis.get_ticklabels():
+		label.set_fontsize(10)
+				
 	pylab.show()
+	
+	#if figureno>=0: break
 
 #p = plt.axhspan(0.25, 0.75, facecolor='0.5', alpha=0.5)
 
