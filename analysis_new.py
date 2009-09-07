@@ -26,18 +26,18 @@ print "Reminder: Lyrics = Red, Instrumental = Blue"
 pylab.figure()
 pylab.show()
 
-for figureno,songno in enumerate(ds.metadata['songno']):
+for songcounter,songname in enumerate(ds.metadata['songname']):
 	# figureno will increment from 0
 	# songno will go through all the available songno's in the Dataset ds
 	#pylab.figure(figureno)
 		
-	sample_file = ds.filter(songno=songno).next()
+	sample_file = ds.filter(songname=songname).next()
 	
 	pval_list = list() # list of P values (one for each time step)
 	mean_diff_list = list()
 	
 	# set up a CSV file writer
-	csv_file = open(sample_file.metadata['artist']+'.csv', 'w') # open a file for writing
+	csv_file = open(sample_file.metadata['songname']+'.csv', 'w') # open a file for writing
 	csv_out =  csv.DictWriter(csv_file, ['t','imy','ivy','iny','lmy','lvy','lny','tstat','pval'],
 				dialect='excel')
 	labels = {  't': 'Time (s)',
@@ -67,7 +67,7 @@ for figureno,songno in enumerate(ds.metadata['songno']):
 			differencelist=list()
 				
 			# loop over subjects' responses (to this song and condition at this timestep)
-			for df in ds.filter(songno=songno,condition=condition):
+			for df in ds.filter(songname=songname,condition=condition):
 				t = df.data['t'][i]
 				DotY = df.data['DotY'][i]
 				DotX = df.data['DotX'][i]
@@ -134,14 +134,17 @@ for figureno,songno in enumerate(ds.metadata['songno']):
 	t = df.data['t']
 	
 	#pylab.plot(t,mean_diff_array, colours['l'])
+	figureno = songcounter+1
 	print "figure",figureno
-	ax = pylab.subplot(4,4,figureno+1)
+	ax = pylab.subplot(4,4,figureno)
 	pylab.plot(t,mean_diff_array, colours['l'])
 	
 	thistitle=pylab.title("%s"%(df.metadata['artist']), fontsize=10)
 	
-	#pylab.xlabel('Time (s)')
-	#pylab.ylabel('Diff value')	
+	if pylab.mod(figureno,4)==1: # left-most subfigure
+		pylab.ylabel('Mean difference', fontsize=10)	
+	if figureno>12: # bottom-most subfigure
+		pylab.xlabel('Time (s)', fontsize=10)
 	
 	# draw a horizontal line at y=0
 	pylab.axhline(y=0.0, linestyle='-', color='k')
@@ -172,6 +175,8 @@ for figureno,songno in enumerate(ds.metadata['songno']):
 		label.set_fontsize(10)
 				
 	pylab.show()
+	
+	print ds
 	
 	#if figureno>=0: break
 
