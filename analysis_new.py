@@ -119,21 +119,21 @@ for figureno,songno in enumerate(ds.metadata['songno']):
 	t = df.data['t']
 	
 	#pylab.plot(t,mean_diff_array, colours['l'])
-	
-	pylab.subplot(4,4,figureno)
+	print "figure",figureno
+	pylab.subplot(4,4,figureno+1)
 	pylab.plot(t,mean_diff_array, colours['l'])
-	pylab.title("%s - %s"%(df.metadata['artist'], df.metadata['songname']))
-	pylab.xlabel('Time (s)')
-	pylab.ylabel('Diff value')	
+	pylab.title("%s"%(df.metadata['artist']), fontsize=10)
+	#pylab.xlabel('Time (s)')
+	#pylab.ylabel('Diff value')	
 		# put coloured dots on the points for which instrumental was more arousing
 	for i,diff in enumerate(mean_diff_array):
 		if diff<0:
 			 pylab.plot(t[i],mean_diff_array[i], colours['i']+'.')
 	
 	# put coloured dashes on the points for which p < 0.005		 
-	for i,diff in enumerate(pval_array):
+	for i,pval in enumerate(pval_array):
 		if pval<0.005:
-			pylab.plot(t[i],mean_diff_array[i], linestyle='-', color='g')
+			pylab.plot(t[i],mean_diff_array[i], 'g.')
 	# draw the horizontal line of p=0.005
 	#pylab.axhline(y=0.005, linestyle=':', color='k')
 	#pylab.text(max(t)/2, 0.005, "p=0.005", color='k')
