@@ -30,7 +30,16 @@ class Dataset:
 		self.data = list()
 		if folderpath:
 			self.load(folderpath)
+	def __repr__(self):
+		return "<Dataset containing %d files, %s>"%(len(self.data), self.stats() )
 		
+	def stats(self):
+		"""Returns a dictionary showing the size of each metadata set. 
+		i.e. the number of different song names, artist names, subjects, etc."""
+		stats={}
+		for key, value in self.metadata.iteritems():
+			stats[key] =len(value)
+		return stats
 			
 	def filter(self,**kwargs):
 		"""Filters the dataset based on keyword arguments
@@ -71,7 +80,6 @@ class Dataset:
 						self.metadata[key].add(value)
 					except KeyError: # metadata[key] not defined yet
 						self.metadata[key] = set([value])
-				
 				
 				
 
