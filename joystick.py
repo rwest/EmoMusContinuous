@@ -60,7 +60,7 @@ class Dataset:
 				try:
 					this_file = Datafile(filepath)
 				except FileNameError:
-					print "Couldn't parse the filename. Skipping",filename
+					print "Couldn't parse the filename '%s'. Skipping."%filename
 					continue # to the next file
 					
 				#store in the master list
@@ -132,7 +132,9 @@ class Datafile:
 		DotY=list()
 		# read in all rows
 		for row in reader:
-			if float(row['t'])>60: break # stop reading at 60 seconds
+			if float(row['t'])>=59.0: 
+				break # stop reading just before 59 seconds 
+				      #(this seems to be where the computer takes over)
 			t.append(row['t'])
 			DotX.append(row['DotX'])
 			DotY.append(row['DotY'])
